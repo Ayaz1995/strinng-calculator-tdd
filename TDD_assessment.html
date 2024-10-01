@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>String Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        textarea {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        #result {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+    <script>
+        function Add(numbers) {
+            //Handle empty input
+            if (numbers === "") {
+                return 0;
+            }
+
+            let delimiter = ","; // Default delimiter
+            let sanitizedNumbers = numbers;
+
+            // Step 3: Replace new lines with the custom delimiter
+            sanitizedNumbers = sanitizedNumbers.replace(/\n/g, delimiter);
+
+            // Step 4: Split numbers using the custom delimiter
+            const numArray = sanitizedNumbers.split(new RegExp(`[${delimiter}]+`)).filter(num => num.trim() !== ""); // Remove empty strings
+
+            const negatives = []; // Array to store negative numbers
+
+            // Step 1: Calculate the sum, 
+            // Step 6: ignore numbers > 1000, and check for negatives
+            const sum = numArray.reduce((total, num) => {
+                const parsedNum = parseInt(num.trim(), 10);
+
+                // Step 5: Check for negative numbers
+                if (parsedNum < 0) {
+                    negatives.push(parsedNum);
+                }
+
+                //Step 6: Ignore numbers greater than 1000
+                if (parsedNum > 1000) {
+                    return total;
+                }
+
+                return total + (isNaN(parsedNum) ? 0 : parsedNum); // Treat NaN as 0
+            }, 0);
+
+            // Step 5: Throw an exception, If there are negatives
+            if (negatives.length > 0) {
+                throw new Error("Negatives not allowed: " + negatives.join(", "));
+            }
+
+            return sum;
+        }
+
+        // Function triggered on button click
+        function calculateSum() {
+            const input = document.getElementById('numberInput').value;
+            try {
+                const result = Add(input);
+                const resultElement = document.getElementById('result');
+                resultElement.textContent = "Sum: " + result;
+                resultElement.className = 'success';
+            } catch (error) {
+                const resultElement = document.getElementById('result');
+                resultElement.textContent = error.message;
+                resultElement.className = 'error';
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>String Calculator</h1>
+    <label for="numberInput">Enter numbers:</label>
+    <textarea id="numberInput" placeholder="e.g. //;\n1;2 or 1,2" rows="5"></textarea><br>
+    <button onclick="calculateSum()">Calculate Sum</button>
+    <p id="result">Sum: </p>
+</body>
+</html>
